@@ -13,7 +13,7 @@ import {
   SelectionMode
 } from '@xyflow/react';
 import type { Connection, Edge, Node } from '@xyflow/react';
-import { Save, Sun, Moon, Square, Camera, Undo2, Redo2, Frame, SmilePlus, Type } from 'lucide-react';
+import { Save, Sun, Moon, Square, Camera, Undo2, Redo2, Frame, SmilePlus, Type, FileText } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import clsx from 'clsx';
 
@@ -221,8 +221,26 @@ export default function LearningCanvas({ boardId }: LearningCanvasProps) {
       .then((dataUrl) => {
         const a = document.createElement('a');
         a.href = dataUrl;
-        a.download = 'Ruta_Revit_2026.png';
+        a.download = 'Pizarra_BIMUP.png';
         a.click();
+      });
+  };
+
+  const exportToPdf = () => {
+    const viewport = document.querySelector('.react-flow__viewport') as HTMLElement;
+    if (!viewport) return;
+    toPng(viewport, { backgroundColor: isDarkMode ? '#111827' : '#f8fafc' })
+      .then((dataUrl) => {
+        // Importación dinámica para no bloquear el renderizado inicial
+        import('jspdf').then(({ jsPDF }) => {
+          const pdf = new jsPDF({
+            orientation: 'landscape',
+            unit: 'px',
+            format: [viewport.scrollWidth, viewport.scrollHeight]
+          });
+          pdf.addImage(dataUrl, 'PNG', 0, 0, viewport.scrollWidth, viewport.scrollHeight);
+          pdf.save('Pizarra_BIMUP.pdf');
+        });
       });
   };
 
@@ -332,7 +350,8 @@ export default function LearningCanvas({ boardId }: LearningCanvasProps) {
            
            <div className={clsx("w-px h-6 mx-1", isDarkMode ? "bg-gray-700" : "bg-gray-300")} />
 
-           <button onClick={exportToImage} className="bg-purple-600 hover:bg-purple-500 text-white px-3 py-2 rounded-md text-sm font-semibold flex items-center gap-1"><Camera className="w-4 h-4" /> Exportar</button>
+           <button onClick={exportToImage} className="bg-purple-600 hover:bg-purple-500 text-white px-3 py-2 rounded-md text-sm font-semibold flex items-center gap-1" title="Descargar como Imagen"><Camera className="w-4 h-4" /> PNG</button>
+           <button onClick={exportToPdf} className="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded-md text-sm font-semibold flex items-center gap-1" title="Descargar como PDF"><FileText className="w-4 h-4" /> PDF</button>
            
            {isOwner && (
              <button onClick={saveCanvasState} className="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded-md text-sm font-semibold flex items-center gap-1"><Save className="w-4 h-4" /> Guardar</button>

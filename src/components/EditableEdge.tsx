@@ -62,9 +62,21 @@ export default function EditableEdge({
     );
   };
 
+  const changeWidth = (evt: React.ChangeEvent<HTMLInputElement>) => {
+    setEdges((eds) =>
+      eds.map((e) => {
+        if (e.id === id) {
+          return { ...e, data: { ...e.data, strokeWidth: Number(evt.target.value) } };
+        }
+        return e;
+      })
+    );
+  };
+
   const handleDelete = () => setEdges((eds) => eds.filter(e => e.id !== id));
 
   const label = (data?.label as string) || '';
+  const currentStrokeWidth = data?.strokeWidth ? Number(data.strokeWidth) : 2;
 
   return (
     <>
@@ -73,7 +85,7 @@ export default function EditableEdge({
         markerEnd={markerEnd} 
         style={{
           ...style,
-          strokeWidth: selected ? 3 : 2, // Resaltar al seleccionar
+          strokeWidth: selected ? currentStrokeWidth + 1 : currentStrokeWidth,
         }} 
       />
       <EdgeLabelRenderer>
@@ -85,44 +97,34 @@ export default function EditableEdge({
           }}
           className="nodrag nopan flex flex-col items-center gap-1 z-50"
         >
-          {/* Barra de herramientas flotante para la flecha (visible al seleccionarla) */}
+          {/* Barra de herramientas flotante para la flecha */}
           <div 
             className={clsx(
-              "flex items-center gap-1 bg-gray-900 border border-gray-700 p-1 rounded-lg shadow-xl transition-opacity",
+              "flex flex-col gap-1 bg-gray-900 border border-gray-700 p-1.5 rounded-lg shadow-xl transition-opacity",
               selected ? "opacity-100" : "opacity-0 pointer-events-none"
             )}
           >
-            <button 
-              onClick={() => changeType('straight')} 
-              className={clsx("p-1 rounded hover:text-white transition-colors", pathType === 'straight' ? "bg-gray-800 text-blue-400" : "text-gray-400")} 
-              title="Flecha Recta"
-            >
-              <Minus className="w-3.5 h-3.5" />
-            </button>
-            <button 
-              onClick={() => changeType('bezier')} 
-              className={clsx("p-1 rounded hover:text-white transition-colors", pathType === 'bezier' ? "bg-gray-800 text-blue-400" : "text-gray-400")} 
-              title="Flecha Curva"
-            >
-              <Spline className="w-3.5 h-3.5" />
-            </button>
-            <button 
-              onClick={() => changeType('smoothstep')} 
-              className={clsx("p-1 rounded hover:text-white transition-colors", pathType === 'smoothstep' ? "bg-gray-800 text-blue-400" : "text-gray-400")} 
-              title="Flecha Escalonada"
-            >
-              <CornerUpRight className="w-3.5 h-3.5" />
-            </button>
+            <div className="flex items-center gap-1 justify-center">
+              <button onClick={() => changeType('straight')} className={clsx("p-1 rounded hover:text-white transition-colors", pathType === 'straight' ? "bg-gray-800 text-blue-400" : "text-gray-400")} title="Flecha Recta"><Minus className="w-3.5 h-3.5" /></button>
+              <button onClick={() => changeType('bezier')} className={clsx("p-1 rounded hover:text-white transition-colors", pathType === 'bezier' ? "bg-gray-800 text-blue-400" : "text-gray-400")} title="Flecha Curva"><Spline className="w-3.5 h-3.5" /></button>
+              <button onClick={() => changeType('smoothstep')} className={clsx("p-1 rounded hover:text-white transition-colors", pathType === 'smoothstep' ? "bg-gray-800 text-blue-400" : "text-gray-400")} title="Flecha Escalonada"><CornerUpRight className="w-3.5 h-3.5" /></button>
+              <div className="w-px h-4 bg-gray-700 mx-1" />
+              <button onClick={handleDelete} className="p-1 rounded text-gray-400 hover:text-red-500 transition-colors" title="Eliminar Flecha"><Trash2 className="w-3.5 h-3.5" /></button>
+            </div>
             
-            <div className="w-px h-4 bg-gray-700 mx-1" />
-            
-            <button 
-              onClick={handleDelete} 
-              className="p-1 rounded text-gray-400 hover:text-red-500 transition-colors" 
-              title="Eliminar Flecha"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
+            {/* Slider de Grosor */}
+            <div className="flex items-center gap-2 px-1 py-0.5 mt-1 border-t border-gray-700 pt-1">
+               <span className="text-[10px] text-gray-400 font-bold uppercase">Grosor</span>
+               <input 
+                 type="range" 
+                 min="1" 
+                 max="12" 
+                 value={currentStrokeWidth}
+                 onChange={changeWidth}
+                 className="w-16 accent-blue-500 cursor-pointer"
+                 title="Grosor de flecha"
+               />
+            </div>
           </div>
 
           <input

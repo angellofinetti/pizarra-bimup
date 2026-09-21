@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Plus, LayoutTemplate, LogOut } from 'lucide-react';
+import { Plus, LayoutTemplate, LogOut, Crown } from 'lucide-react';
 
 interface Board {
   id: string;
@@ -36,7 +36,7 @@ export default function Dashboard() {
 
   const createNewBoard = async () => {
     if (boards.length >= 3) {
-      alert('¡Has alcanzado el límite de 3 pizarras gratuitas! Actualiza al Plan Pro para crear más.');
+      alert('¡Has alcanzado el límite de 3 pizarras gratuitas! Actualiza al Plan Pro para crear más y colaborar.');
       return;
     }
 
@@ -61,9 +61,18 @@ export default function Dashboard() {
       <header className="flex justify-between items-center mb-12 max-w-6xl mx-auto">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <LayoutTemplate className="w-6 h-6 text-blue-500" />
-          BIM UP - Mis Pizarras
+          BIM UP
         </h1>
         <div className="flex items-center gap-4">
+          <button 
+            onClick={() => alert('Próximamente: Pasarela de pagos para Plan Pro')}
+            className="hidden md:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white rounded-lg text-sm font-bold shadow-lg shadow-orange-900/20 transition-all transform hover:scale-105"
+          >
+            <Crown className="w-4 h-4" /> Mejorar Plan
+          </button>
+          
+          <div className="h-6 w-px bg-gray-700 hidden md:block"></div>
+
           <span className="text-sm text-gray-400">{user?.email}</span>
           <button
             onClick={signOut}
