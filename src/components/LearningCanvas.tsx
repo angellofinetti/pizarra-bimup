@@ -206,7 +206,7 @@ export default function LearningCanvas() {
         style: { stroke: isDarkMode ? '#6b7280' : '#475569', strokeWidth: 2 },
         markerEnd: { type: MarkerType.ArrowClosed, color: isDarkMode ? '#6b7280' : '#475569' },
         data: { label: '' }
-      }, eds));
+      } as any, eds));
     }, [setEdges, isDarkMode, takeSnapshot]
   );
 
