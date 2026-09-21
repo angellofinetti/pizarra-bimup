@@ -61,6 +61,7 @@ export default function LearningCanvas({ boardId }: LearningCanvasProps) {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedVideo, setSelectedVideo] = useState<{ isOpen: boolean; title: string; url: string }>({ isOpen: false, title: '', url: '' });
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isOwner, setIsOwner] = useState(false);
 
   const [past, setPast] = useState<{ nodes: Node[]; edges: Edge[] }[]>([]);
   const [future, setFuture] = useState<{ nodes: Node[]; edges: Edge[] }[]>([]);
@@ -108,10 +109,11 @@ export default function LearningCanvas({ boardId }: LearningCanvasProps) {
         if (data.nodes?.length) setNodes(data.nodes);
         if (data.edges?.length) setEdges(data.edges);
         if (data.theme !== null) setIsDarkMode(data.theme);
+        setIsOwner(user?.id === data.user_id);
       }
     };
     loadState();
-  }, [setNodes, setEdges, boardId]);
+  }, [setNodes, setEdges, boardId, user?.id]);
 
   // Manejar atajos de teclado globales (Copiar/Pegar)
   useEffect(() => {
@@ -284,6 +286,9 @@ export default function LearningCanvas({ boardId }: LearningCanvasProps) {
         selectionOnDrag={true}
         selectionMode={SelectionMode.Partial}
         panActivationKeyCode="Space"
+        nodesDraggable={isOwner}
+        nodesConnectable={isOwner}
+        elementsSelectable={isOwner}
       >
         <Background color={isDarkMode ? "#374151" : "#cbd5e1"} variant={BackgroundVariant.Dots} gap={20} size={2} />
         
@@ -300,29 +305,38 @@ export default function LearningCanvas({ boardId }: LearningCanvasProps) {
         
         <Panel position="top-right" className={clsx("p-2 rounded-lg shadow-xl flex gap-2 border items-center flex-wrap max-w-[900px] justify-end", isDarkMode ? "bg-gray-900 border-gray-700" : "bg-white border-gray-200")}>
            
-           <div className="flex gap-1 border-r border-gray-600 pr-2">
-             <button onClick={undo} disabled={past.length === 0} className="p-1.5 text-gray-400 hover:text-white disabled:opacity-30 disabled:hover:text-gray-400" title="Deshacer (Ctrl+Z)"><Undo2 className="w-4 h-4" /></button>
-             <button onClick={redo} disabled={future.length === 0} className="p-1.5 text-gray-400 hover:text-white disabled:opacity-30 disabled:hover:text-gray-400" title="Rehacer (Ctrl+Y)"><Redo2 className="w-4 h-4" /></button>
-           </div>
+           {isOwner && (
+             <div className="flex gap-1 border-r border-gray-600 pr-2">
+               <button onClick={undo} disabled={past.length === 0} className="p-1.5 text-gray-400 hover:text-white disabled:opacity-30 disabled:hover:text-gray-400" title="Deshacer (Ctrl+Z)"><Undo2 className="w-4 h-4" /></button>
+               <button onClick={redo} disabled={future.length === 0} className="p-1.5 text-gray-400 hover:text-white disabled:opacity-30 disabled:hover:text-gray-400" title="Rehacer (Ctrl+Y)"><Redo2 className="w-4 h-4" /></button>
+             </div>
+           )}
 
            <button onClick={() => setIsDarkMode(!isDarkMode)} className={clsx("p-1.5 rounded-md", isDarkMode ? "text-yellow-400 hover:bg-gray-800" : "text-indigo-600 hover:bg-gray-100")} title="Modo Claro/Oscuro">
              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
            </button>
            
-           <div className={clsx("w-px h-6 mx-1", isDarkMode ? "bg-gray-700" : "bg-gray-300")} />
+           {isOwner && (
+             <>
+               <div className={clsx("w-px h-6 mx-1", isDarkMode ? "bg-gray-700" : "bg-gray-300")} />
 
-           <button onClick={() => addNewNode('frameNode', { title: 'Nuevo Marco' }, -10, { width: 400, height: 300 })} className="bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm font-semibold border border-gray-600 flex items-center gap-1"><Frame className="w-4 h-4"/> Marco</button>
-           
-           <button onClick={() => addNewNode('textNode', { text: 'Texto libre' }, 5, { width: 250, height: 60 })} className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-md text-sm font-semibold flex items-center gap-1"><Type className="w-4 h-4"/> Texto</button>
-           <button onClick={() => addNewNode('iconNode', { iconType: 'smile', color: '#facc15' }, 5, { width: 80, height: 80 })} className="bg-pink-600 hover:bg-pink-500 text-white px-3 py-2 rounded-md text-sm font-semibold flex items-center gap-1"><SmilePlus className="w-4 h-4"/> Sticker</button>
-           <button onClick={() => addNewNode('shapeNode', { text: 'Texto', shape: 'rectangle', color: '#dbeafe' }, 1, { width: 160, height: 160 })} className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-md text-sm font-semibold flex items-center gap-1"><Square className="w-4 h-4" /> Figura</button>
-           <button onClick={() => addNewNode('stickyNode', { text: '', color: '#fef08a' }, 1, { width: 200, height: 200 })} className="bg-yellow-600 hover:bg-yellow-500 text-white px-3 py-2 rounded-md text-sm font-semibold">Post-it</button>
-           <button onClick={() => addNewNode('classNode', { title: 'Clase', module: 'MÓDULO', status: 'in-progress', tiktokUrl: '' }, 2)} className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-md text-sm font-semibold">+ Clase</button>
+               <button onClick={() => addNewNode('frameNode', { title: 'Nuevo Marco' }, -10, { width: 400, height: 300 })} className="bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm font-semibold border border-gray-600 flex items-center gap-1"><Frame className="w-4 h-4"/> Marco</button>
+               
+               <button onClick={() => addNewNode('textNode', { text: 'Texto libre' }, 5, { width: 250, height: 60 })} className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-md text-sm font-semibold flex items-center gap-1"><Type className="w-4 h-4"/> Texto</button>
+               <button onClick={() => addNewNode('iconNode', { iconType: 'smile', color: '#facc15' }, 5, { width: 80, height: 80 })} className="bg-pink-600 hover:bg-pink-500 text-white px-3 py-2 rounded-md text-sm font-semibold flex items-center gap-1"><SmilePlus className="w-4 h-4"/> Sticker</button>
+               <button onClick={() => addNewNode('shapeNode', { text: 'Texto', shape: 'rectangle', color: '#dbeafe' }, 1, { width: 160, height: 160 })} className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-md text-sm font-semibold flex items-center gap-1"><Square className="w-4 h-4" /> Figura</button>
+               <button onClick={() => addNewNode('stickyNode', { text: '', color: '#fef08a' }, 1, { width: 200, height: 200 })} className="bg-yellow-600 hover:bg-yellow-500 text-white px-3 py-2 rounded-md text-sm font-semibold">Post-it</button>
+               <button onClick={() => addNewNode('classNode', { title: 'Clase', module: 'MÓDULO', status: 'in-progress', tiktokUrl: '' }, 2)} className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-md text-sm font-semibold">+ Clase</button>
+             </>
+           )}
            
            <div className={clsx("w-px h-6 mx-1", isDarkMode ? "bg-gray-700" : "bg-gray-300")} />
 
            <button onClick={exportToImage} className="bg-purple-600 hover:bg-purple-500 text-white px-3 py-2 rounded-md text-sm font-semibold flex items-center gap-1"><Camera className="w-4 h-4" /> Exportar</button>
-           <button onClick={saveCanvasState} className="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded-md text-sm font-semibold flex items-center gap-1"><Save className="w-4 h-4" /> Guardar</button>
+           
+           {isOwner && (
+             <button onClick={saveCanvasState} className="bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded-md text-sm font-semibold flex items-center gap-1"><Save className="w-4 h-4" /> Guardar</button>
+           )}
         </Panel>
       </ReactFlow>
 

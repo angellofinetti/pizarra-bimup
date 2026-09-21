@@ -37,6 +37,11 @@ export default function Editor() {
     return <Navigate to="/dashboard" replace />;
   }
 
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    alert('¡Enlace copiado al portapapeles! Cualquiera con cuenta podrá ver tu pizarra.');
+  };
+
   return (
     <div className="flex h-screen w-full bg-gray-950 text-white overflow-hidden">
       <Sidebar />
@@ -62,6 +67,13 @@ export default function Editor() {
             />
             <Edit2 className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-400 transition-colors" />
           </div>
+
+          <button 
+            onClick={handleShare}
+            className="flex items-center gap-2 bg-blue-600/90 hover:bg-blue-500 text-white px-3 py-2 rounded-lg backdrop-blur-sm border border-blue-500 shadow-lg text-sm font-medium transition-colors"
+          >
+            Compartir Link
+          </button>
         </div>
         
         <LearningCanvas boardId={boardId} />
