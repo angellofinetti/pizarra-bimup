@@ -28,6 +28,8 @@ import ShapeNode from './ShapeNode';
 import FrameNode from './FrameNode';
 import IconNode from './IconNode';
 
+import { supabase } from '../lib/supabase';
+
 const nodeTypes = {
   classNode: ClassNode,
   textNode: TextNode,
@@ -61,6 +63,7 @@ export default function LearningCanvas() {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedVideo, setSelectedVideo] = useState<{ isOpen: boolean; title: string; url: string }>({ isOpen: false, title: '', url: '' });
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [past, setPast] = useState<{ nodes: Node[]; edges: Edge[] }[]>([]);
   const [future, setFuture] = useState<{ nodes: Node[]; edges: Edge[] }[]>([]);
@@ -94,16 +97,22 @@ export default function LearningCanvas() {
     setEdges(next.edges);
   };
 
+  // Cargar estado desde Supabase al iniciar
   useEffect(() => {
-    const saved = localStorage.getItem('revit-canvas-state');
-    if (saved) {
-      try {
-        const { savedNodes, savedEdges, savedTheme } = JSON.parse(saved);
-        if (savedNodes?.length) setNodes(savedNodes);
-        if (savedEdges?.length) setEdges(savedEdges);
-        if (savedTheme !== undefined) setIsDarkMode(savedTheme);
-      } catch (e) {}
-    }
+    const loadState = async () => {
+      const { data, error } = await supabase
+        .from('tableros_pizarra')
+        .select('*')
+        .eq('id', 'principal')
+        .single();
+
+      if (data) {
+        if (data.nodes?.length) setNodes(data.nodes);
+        if (data.edges?.length) setEdges(data.edges);
+        if (data.theme !== null) setIsDarkMode(data.theme);
+      }
+    };
+    loadState();
   }, [setNodes, setEdges]);
 
   // Manejar atajos de teclado globales (Copiar/Pegar)
@@ -181,9 +190,24 @@ export default function LearningCanvas() {
     return () => document.removeEventListener('paste', handlePaste);
   }, [setNodes, takeSnapshot]);
 
-  const saveCanvasState = () => {
-    localStorage.setItem('revit-canvas-state', JSON.stringify({ savedNodes: nodes, savedEdges: edges, savedTheme: isDarkMode }));
-    alert('¡Diagrama guardado exitosamente!');
+  const saveCanvasState = async () => {
+    setIsSaving(true);
+    const { error } = await supabase
+      .from('tableros_pizarra')
+      .upsert({ 
+         id: 'principal', 
+         nodes: nodes, 
+         edges: edges, 
+         theme: isDarkMode,
+         updated_at: new Date()
+      });
+    
+    setIsSaving(false);
+    if (error) {
+      alert('Error guardando en la nube: ' + error.message);
+    } else {
+      alert('¡Diagrama guardado en Supabase exitosamente!');
+    }
   };
 
   const exportToImage = () => {
