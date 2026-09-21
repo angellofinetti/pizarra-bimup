@@ -30,6 +30,8 @@ import IconNode from './IconNode';
 
 import { supabase } from '../lib/supabase';
 
+import { useAuth } from '../contexts/AuthContext';
+
 const nodeTypes = {
   classNode: ClassNode,
   textNode: TextNode,
@@ -44,26 +46,21 @@ const edgeTypes = {
   editableEdge: EditableEdge,
 };
 
-const initialNodes: Node[] = [
-  {
-    id: '1',
-    type: 'classNode',
-    position: { x: 250, y: 100 },
-    data: { title: 'Interfaz y Navegación Básica', module: 'MÓDULO 1: FUNDAMENTOS', status: 'completed', tiktokUrl: '' },
-    zIndex: 1
-  }
-];
-
+const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
 
 let idCounter = 60;
 
-export default function LearningCanvas() {
+interface LearningCanvasProps {
+  boardId: string;
+}
+
+export default function LearningCanvas({ boardId }: LearningCanvasProps) {
+  const { user } = useAuth();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedVideo, setSelectedVideo] = useState<{ isOpen: boolean; title: string; url: string }>({ isOpen: false, title: '', url: '' });
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
 
   const [past, setPast] = useState<{ nodes: Node[]; edges: Edge[] }[]>([]);
   const [future, setFuture] = useState<{ nodes: Node[]; edges: Edge[] }[]>([]);
@@ -100,10 +97,11 @@ export default function LearningCanvas() {
   // Cargar estado desde Supabase al iniciar
   useEffect(() => {
     const loadState = async () => {
-      const { data, error } = await supabase
+      if (!boardId) return;
+      const { data } = await supabase
         .from('tableros_pizarra')
         .select('*')
-        .eq('id', 'principal')
+        .eq('id', boardId)
         .single();
 
       if (data) {
@@ -113,7 +111,7 @@ export default function LearningCanvas() {
       }
     };
     loadState();
-  }, [setNodes, setEdges]);
+  }, [setNodes, setEdges, boardId]);
 
   // Manejar atajos de teclado globales (Copiar/Pegar)
   useEffect(() => {
@@ -191,18 +189,22 @@ export default function LearningCanvas() {
   }, [setNodes, takeSnapshot]);
 
   const saveCanvasState = async () => {
-    setIsSaving(true);
+    if (!user) {
+      alert('Debes iniciar sesión para guardar.');
+      return;
+    }
+    
     const { error } = await supabase
       .from('tableros_pizarra')
       .upsert({ 
-         id: 'principal', 
+         id: boardId, 
+         user_id: user.id,
          nodes: nodes, 
          edges: edges, 
          theme: isDarkMode,
          updated_at: new Date()
       });
     
-    setIsSaving(false);
     if (error) {
       alert('Error guardando en la nube: ' + error.message);
     } else {
