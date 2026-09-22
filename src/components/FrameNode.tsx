@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { NodeResizer, useReactFlow } from '@xyflow/react';
-import { Trash2, ArrowDownToLine, Minus, GripHorizontal, MoreHorizontal } from 'lucide-react';
+import { Trash2, ArrowDownToLine, ArrowUpToLine, Minus, GripHorizontal, MoreHorizontal } from 'lucide-react';
 import clsx from 'clsx';
 
 export type FrameNodeData = {
@@ -38,9 +38,8 @@ function FrameNode({ id, data, selected }: { id: string, data: FrameNodeData, se
     setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, data: { ...n.data, borderWidth: newWidth } } : n));
   };
 
-  const handleDelete = () => setNodes((nodes) => nodes.filter((n) => n.id !== id));
-  
-  const sendToBack = () => setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: -10 } : n));
+  const sendToBack = () => setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: (n.zIndex || 0) - 1 } : n));
+  const bringToFront = () => setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: (n.zIndex || 0) + 1 } : n));
 
   const currentBg = data.bgColor || 'transparent';
   const currentBorder = data.borderStyle || 'dashed';
@@ -89,7 +88,7 @@ function FrameNode({ id, data, selected }: { id: string, data: FrameNodeData, se
           ))}
         </div>
         
-        <div className="flex gap-1 items-center px-1">
+        <div className="flex gap-1 items-center px-1 border-r border-gray-700 pr-2">
           <button onClick={() => changeBorder('solid')} className={clsx("p-1 rounded hover:text-white transition-colors", currentBorder === 'solid' ? "bg-gray-800 text-blue-400" : "text-gray-400")} title="Borde Corrido">
             <Minus className="w-4 h-4" />
           </button>
@@ -102,7 +101,7 @@ function FrameNode({ id, data, selected }: { id: string, data: FrameNodeData, se
         </div>
 
         {/* Control de Grosor de Borde */}
-        <div className="flex items-center gap-2 px-2 border-l border-gray-700">
+        <div className="flex items-center gap-2 px-1 border-r border-gray-700 pr-2">
            <span className="text-[10px] text-gray-400 font-bold uppercase">Grosor</span>
            <input 
              type="range" 
@@ -114,6 +113,18 @@ function FrameNode({ id, data, selected }: { id: string, data: FrameNodeData, se
              title="Grosor del borde"
            />
         </div>
+
+        <div className="flex gap-1 items-center px-1">
+          <button onClick={bringToFront} className="text-gray-400 hover:text-white p-1 rounded hover:bg-gray-800 transition-colors" title="Traer al frente">
+            <ArrowUpToLine className="w-4 h-4" />
+          </button>
+          <button onClick={sendToBack} className="text-gray-400 hover:text-white p-1 rounded hover:bg-gray-800 transition-colors" title="Enviar al fondo">
+            <ArrowDownToLine className="w-4 h-4" />
+          </button>
+          <button onClick={handleDelete} className="text-gray-400 hover:text-red-500 p-1 rounded hover:bg-gray-800 transition-colors ml-1" title="Eliminar Marco">
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Etiqueta del Marco (Afuera y arriba) */}
@@ -124,16 +135,6 @@ function FrameNode({ id, data, selected }: { id: string, data: FrameNodeData, se
           className="nodrag bg-transparent outline-none w-48 text-sm font-bold text-gray-500 focus:text-gray-300 placeholder-gray-500 transition-colors"
           placeholder="Nombre del Marco..."
         />
-        {selected && (
-          <div className="flex gap-1">
-            <button onClick={sendToBack} className="text-gray-500 hover:text-blue-400 transition-colors bg-gray-900/50 rounded p-0.5" title="Mover detrás de todo (Fondo)">
-              <ArrowDownToLine className="w-4 h-4" />
-            </button>
-            <button onClick={handleDelete} className="text-gray-500 hover:text-red-500 transition-colors bg-gray-900/50 rounded p-0.5" title="Eliminar Marco">
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
