@@ -10,6 +10,7 @@ export type ShapeNodeData = {
   isTransparent?: boolean;
   borderStyle?: 'solid' | 'dashed' | 'dotted';
   borderWidth?: number;
+  fontSize?: number;
 };
 
 const colors = [
