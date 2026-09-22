@@ -38,6 +38,8 @@ function FrameNode({ id, data, selected }: { id: string, data: FrameNodeData, se
     setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, data: { ...n.data, borderWidth: newWidth } } : n));
   };
 
+  const handleDelete = () => setNodes((nodes) => nodes.filter((n) => n.id !== id));
+  
   const sendToBack = () => setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: (n.zIndex || 0) - 1 } : n));
   const bringToFront = () => setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: (n.zIndex || 0) + 1 } : n));
 
