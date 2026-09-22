@@ -4,6 +4,7 @@ import LearningCanvas from '../components/LearningCanvas';
 import { useParams, Navigate, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { ReactFlowProvider } from '@xyflow/react';
 
 export default function Editor() {
   const { boardId } = useParams();
@@ -79,7 +80,9 @@ export default function Editor() {
         </header>
         
         <div className="flex-1 relative w-full h-full">
-          <LearningCanvas boardId={boardId} />
+          <ReactFlowProvider>
+            <LearningCanvas boardId={boardId} />
+          </ReactFlowProvider>
         </div>
       </main>
     </div>

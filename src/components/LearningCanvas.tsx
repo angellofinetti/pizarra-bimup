@@ -10,7 +10,8 @@ import {
   Panel,
   MarkerType,
   MiniMap,
-  SelectionMode
+  SelectionMode,
+  useReactFlow
 } from '@xyflow/react';
 import type { Connection, Edge, Node } from '@xyflow/react';
 import { Save, Sun, Moon, Square, Camera, Undo2, Redo2, Frame, SmilePlus, Type, FileText } from 'lucide-react';
@@ -57,6 +58,7 @@ interface LearningCanvasProps {
 
 export default function LearningCanvas({ boardId }: LearningCanvasProps) {
   const { user } = useAuth();
+  const { screenToFlowPosition } = useReactFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedVideo, setSelectedVideo] = useState<{ isOpen: boolean; title: string; url: string }>({ isOpen: false, title: '', url: '' });
@@ -258,10 +260,32 @@ export default function LearningCanvas({ boardId }: LearningCanvasProps) {
 
   const addNewNode = (type: string, data: any, zIndex: number = 1, style?: any) => {
     takeSnapshot();
+    
+    // Obtener el centro del contenedor (o de la pantalla si no se encuentra)
+    const container = document.querySelector('.react-flow') as HTMLElement;
+    let centerX = window.innerWidth / 2;
+    let centerY = window.innerHeight / 2;
+    
+    if (container) {
+      const rect = container.getBoundingClientRect();
+      centerX = rect.left + rect.width / 2;
+      centerY = rect.top + rect.height / 2;
+    }
+
+    // Proyectar coordenadas de la pantalla al espacio de la pizarra (zoom y pan)
+    const projected = screenToFlowPosition({ x: centerX, y: centerY });
+    
+    // Ajustar para que el centro del nuevo objeto quede exactamente en el centro de la pantalla
+    const offsetX = style?.width ? style.width / 2 : 100;
+    const offsetY = style?.height ? style.height / 2 : 100;
+
     const newNode: Node = {
-      id: `${type}-${idCounter++}`, type,
-      position: { x: Math.random() * 200 + 200, y: Math.random() * 200 + 200 },
-      data, zIndex, style
+      id: `${type}-${idCounter++}`, 
+      type,
+      position: { x: projected.x - offsetX, y: projected.y - offsetY },
+      data, 
+      zIndex, 
+      style
     };
     setNodes((nds) => nds.concat(newNode));
   };
