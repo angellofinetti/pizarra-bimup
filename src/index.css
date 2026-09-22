@@ -16,13 +16,13 @@ body {
   overflow: hidden;
 }
 
-.react-flow__node {
-  border-radius: 8px;
+body.light {
+  background-color: #f8fafc;
+  color: #111827;
 }
 
-/* Custom styles to make react flow look more dark-mode friendly */
-.react-flow__background {
-  background-color: #111827;
+.react-flow__node {
+  border-radius: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar { 

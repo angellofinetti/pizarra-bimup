@@ -17,6 +17,7 @@ import type { Connection, Edge, Node } from '@xyflow/react';
 import { Save, Sun, Moon, Square, Camera, Undo2, Redo2, Frame, SmilePlus, Type, FileText } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import clsx from 'clsx';
+import { useTheme } from '../contexts/ThemeContext';
 
 import ClassNode from './ClassNode';
 import type { ClassNodeData } from './ClassNode';
@@ -62,7 +63,7 @@ export default function LearningCanvas({ boardId }: LearningCanvasProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedVideo, setSelectedVideo] = useState<{ isOpen: boolean; title: string; url: string }>({ isOpen: false, title: '', url: '' });
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const { isDarkMode, setTheme } = useTheme();
   const [isOwner, setIsOwner] = useState(false);
 
   const [past, setPast] = useState<{ nodes: Node[]; edges: Edge[] }[]>([]);
@@ -110,7 +111,7 @@ export default function LearningCanvas({ boardId }: LearningCanvasProps) {
       if (data) {
         if (data.nodes?.length) setNodes(data.nodes);
         if (data.edges?.length) setEdges(data.edges);
-        if (data.theme !== null) setIsDarkMode(data.theme);
+        if (data.theme !== null) setTheme(data.theme);
         setIsOwner(user?.id === data.user_id);
       }
     };
@@ -354,7 +355,7 @@ export default function LearningCanvas({ boardId }: LearningCanvasProps) {
              </div>
            )}
 
-           <button onClick={() => setIsDarkMode(!isDarkMode)} className={clsx("p-1.5 rounded-md", isDarkMode ? "text-yellow-400 hover:bg-gray-800" : "text-indigo-600 hover:bg-gray-100")} title="Modo Claro/Oscuro">
+           <button onClick={() => setTheme(!isDarkMode)} className={clsx("p-1.5 rounded-md", isDarkMode ? "text-yellow-400 hover:bg-gray-800" : "text-indigo-600 hover:bg-gray-100")} title="Modo Claro/Oscuro">
              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
            </button>
            

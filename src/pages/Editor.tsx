@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
+import { useTheme } from '../contexts/ThemeContext';
 import LearningCanvas from '../components/LearningCanvas';
 import { useParams, Navigate, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit2 } from 'lucide-react';
@@ -7,6 +8,7 @@ import { supabase } from '../lib/supabase';
 import { ReactFlowProvider } from '@xyflow/react';
 
 export default function Editor() {
+  const { isDarkMode } = useTheme();
   const { boardId } = useParams();
   const navigate = useNavigate();
   const [title, setTitle] = useState('Cargando...');
@@ -44,11 +46,11 @@ export default function Editor() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-gray-950 text-white overflow-hidden">
+    <div className={`flex h-screen w-full ${isDarkMode ? "bg-gray-950 text-white" : "bg-gray-50 text-gray-900"} overflow-hidden`}>
       <Sidebar />
       <main className="flex-1 h-full flex flex-col">
         {/* Barra superior real (no flotante) para que no choque con la pizarra */}
-        <header className="h-16 px-4 bg-gray-950 border-b border-gray-800 flex items-center justify-between shrink-0 z-10">
+        <header className={`h-16 px-4 ${isDarkMode ? "bg-gray-950 border-gray-800" : "bg-white border-gray-200"} border-b flex items-center justify-between shrink-0 z-10`}>
           <div className="flex items-center gap-4">
             <button 
               onClick={() => navigate('/dashboard')}
