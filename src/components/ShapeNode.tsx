@@ -23,8 +23,8 @@ const colors = [
   { name: 'orange', bg: '#ffedd5', text: '#9a3412', border: '#fdba74' }  
 ];
 
-function ShapeNode({ id, data, selected, zIndex }: { id: string, data: ShapeNodeData, selected?: boolean, zIndex?: number }) {
-  const { setNodes } = useReactFlow();
+function ShapeNode({ id, data, selected }: { id: string, data: ShapeNodeData, selected?: boolean }) {
+  const { setNodes, getNodes } = useReactFlow();
 
   const handleChange = (evt: React.ChangeEvent<HTMLTextAreaElement>) => {
     setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, data: { ...n.data, text: evt.target.value } } : n));
@@ -57,8 +57,14 @@ function ShapeNode({ id, data, selected, zIndex }: { id: string, data: ShapeNode
 
   const handleDelete = () => setNodes((nodes) => nodes.filter((n) => n.id !== id));
   
-  const bringToFront = () => setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: (zIndex || 0) + 1 } : n));
-  const sendToBack = () => setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: (zIndex || 0) - 1 } : n));
+  const bringToFront = () => {
+    const maxZ = Math.max(0, ...getNodes().map(n => n.zIndex || 0));
+    setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: maxZ + 1 } : n));
+  };
+  const sendToBack = () => {
+    const minZ = Math.min(0, ...getNodes().map(n => n.zIndex || 0));
+    setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: minZ - 1 } : n));
+  };
 
   const currentColorObj = colors.find(c => c.bg === data.color) || colors[0];
   const isTransparent = data.isTransparent || false;

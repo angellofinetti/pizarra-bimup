@@ -12,7 +12,7 @@ export type TextNodeData = {
 };
 
 function TextNode({ id, data, selected }: { id: string, data: TextNodeData, selected?: boolean }) {
-  const { setNodes } = useReactFlow();
+  const { setNodes, getNodes } = useReactFlow();
 
   const fontSize = data.fontSize || 16;
   const isBold = data.isBold || false;
@@ -25,8 +25,14 @@ function TextNode({ id, data, selected }: { id: string, data: TextNodeData, sele
 
   const handleDelete = () => setNodes((nodes) => nodes.filter((n) => n.id !== id));
 
-  const sendToBack = () => setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: (n.zIndex || 0) - 1 } : n));
-  const bringToFront = () => setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: (n.zIndex || 0) + 1 } : n));
+  const sendToBack = () => {
+    const minZ = Math.min(0, ...getNodes().map(n => n.zIndex || 0));
+    setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: minZ - 1 } : n));
+  };
+  const bringToFront = () => {
+    const maxZ = Math.max(0, ...getNodes().map(n => n.zIndex || 0));
+    setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: maxZ + 1 } : n));
+  };
 
   const changeFontSize = (delta: number) => {
     const newSize = Math.max(8, Math.min(120, fontSize + delta));

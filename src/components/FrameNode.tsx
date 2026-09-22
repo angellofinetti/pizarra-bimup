@@ -20,7 +20,7 @@ const bgColors = [
 ];
 
 function FrameNode({ id, data, selected }: { id: string, data: FrameNodeData, selected?: boolean }) {
-  const { setNodes } = useReactFlow();
+  const { setNodes, getNodes } = useReactFlow();
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, data: { ...n.data, title: evt.target.value } } : n));
@@ -40,8 +40,14 @@ function FrameNode({ id, data, selected }: { id: string, data: FrameNodeData, se
 
   const handleDelete = () => setNodes((nodes) => nodes.filter((n) => n.id !== id));
   
-  const sendToBack = () => setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: (n.zIndex || 0) - 1 } : n));
-  const bringToFront = () => setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: (n.zIndex || 0) + 1 } : n));
+  const sendToBack = () => {
+    const minZ = Math.min(0, ...getNodes().map(n => n.zIndex || 0));
+    setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: minZ - 1 } : n));
+  };
+  const bringToFront = () => {
+    const maxZ = Math.max(0, ...getNodes().map(n => n.zIndex || 0));
+    setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: maxZ + 1 } : n));
+  };
 
   const currentBg = data.bgColor || 'transparent';
   const currentBorder = data.borderStyle || 'dashed';

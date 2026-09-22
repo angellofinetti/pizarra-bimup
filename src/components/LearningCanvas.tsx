@@ -292,7 +292,7 @@ export default function LearningCanvas({ boardId }: LearningCanvasProps) {
 
   return (
     <div className={clsx("w-full h-full relative transition-colors duration-500", isDarkMode ? "bg-gray-950 text-gray-100" : "bg-gray-50 text-gray-900")}>
-      <ReactFlow
+      <ReactFlow elevateNodesOnSelect={false}
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
