@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Handle, Position, NodeResizer, useReactFlow } from '@xyflow/react';
-import { Trash2, Square, Circle, Diamond, ArrowUpToLine, ArrowDownToLine, Minus, GripHorizontal, MoreHorizontal, PaintBucket } from 'lucide-react';
+import { Trash2, Square, Circle, Diamond, ArrowUpToLine, ArrowDownToLine, Minus, GripHorizontal, MoreHorizontal, PaintBucket, Plus, Type } from 'lucide-react';
 import clsx from 'clsx';
 
 export type ShapeNodeData = {
@@ -49,6 +49,11 @@ function ShapeNode({ id, data, selected, zIndex }: { id: string, data: ShapeNode
     setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, data: { ...n.data, borderWidth: newWidth } } : n));
   };
 
+  const changeFontSize = (delta: number) => {
+    const newSize = Math.max(8, Math.min(120, (data.fontSize || 16) + delta));
+    setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, data: { ...n.data, fontSize: newSize } } : n));
+  };
+
   const handleDelete = () => setNodes((nodes) => nodes.filter((n) => n.id !== id));
   
   const bringToFront = () => setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: (zIndex || 0) + 1 } : n));
@@ -57,7 +62,8 @@ function ShapeNode({ id, data, selected, zIndex }: { id: string, data: ShapeNode
   const currentColorObj = colors.find(c => c.bg === data.color) || colors[0];
   const isTransparent = data.isTransparent || false;
   const currentBorder = data.borderStyle || 'solid';
-  const currentBorderWidth = data.borderWidth || 3; // Default 3px for shapes
+  const currentBorderWidth = data.borderWidth || 3;
+  const currentFontSize = data.fontSize || 16;
 
   const shapeStyles = {
     rectangle: "rounded-lg",
@@ -155,6 +161,20 @@ function ShapeNode({ id, data, selected, zIndex }: { id: string, data: ShapeNode
              />
           </div>
         </div>
+
+        {/* Fila 3: Controles de Texto */}
+        <div className="flex gap-1 items-center px-1 border-t border-gray-700 pt-1.5 mt-0.5 justify-center">
+          <Type className="w-3.5 h-3.5 text-gray-400 mr-1" />
+          <div className="flex items-center gap-1 text-gray-400 bg-gray-800 rounded px-1">
+            <button onClick={() => changeFontSize(-2)} className="p-1 hover:text-white transition-colors" title="Reducir Tamaño de Texto">
+              <Minus className="w-3 h-3" />
+            </button>
+            <span className="text-xs font-semibold w-6 text-center">{currentFontSize}</span>
+            <button onClick={() => changeFontSize(2)} className="p-1 hover:text-white transition-colors" title="Aumentar Tamaño de Texto">
+              <Plus className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Fondo y Borde de la Figura */}
@@ -185,7 +205,7 @@ function ShapeNode({ id, data, selected, zIndex }: { id: string, data: ShapeNode
           )}
           style={{ 
              color: isTransparent ? 'inherit' : currentColorObj.text, 
-             fontSize: 'max(12px, 15cqw)' 
+             fontSize: `${currentFontSize}px` 
           }}
           value={data.text}
           onChange={handleChange}

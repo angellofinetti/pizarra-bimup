@@ -1,11 +1,12 @@
 import { memo } from 'react';
 import { Handle, Position, NodeResizer, useReactFlow } from '@xyflow/react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Plus, Minus, Type } from 'lucide-react';
 import clsx from 'clsx';
 
 export type StickyNodeData = {
   text: string;
   color: string;
+  fontSize?: number;
 };
 
 const colors = [
@@ -27,9 +28,15 @@ function StickyNode({ id, data, selected }: { id: string, data: StickyNodeData, 
     setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, data: { ...n.data, color: newColor } } : n));
   };
 
+  const changeFontSize = (delta: number) => {
+    const newSize = Math.max(8, Math.min(120, (data.fontSize || 16) + delta));
+    setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, data: { ...n.data, fontSize: newSize } } : n));
+  };
+
   const handleDelete = () => setNodes((nodes) => nodes.filter((n) => n.id !== id));
 
   const currentColorObj = colors.find(c => c.bg === data.color) || colors[0];
+  const currentFontSize = data.fontSize || 16;
 
   const handleStyle = clsx(
     "!w-2 !h-2 !bg-gray-700 transition-opacity duration-200 z-10",
@@ -77,7 +84,22 @@ function StickyNode({ id, data, selected }: { id: string, data: StickyNodeData, 
             />
           ))}
         </div>
+        
         <div className="w-px bg-gray-700 my-1 mx-1" />
+        
+        <div className="flex items-center gap-1 text-gray-400">
+          <Type className="w-3.5 h-3.5 mr-1" />
+          <button onClick={() => changeFontSize(-2)} className="p-1 hover:text-white hover:bg-gray-800 rounded transition-colors" title="Reducir Tamaño">
+            <Minus className="w-3 h-3" />
+          </button>
+          <span className="text-xs font-semibold w-5 text-center">{currentFontSize}</span>
+          <button onClick={() => changeFontSize(2)} className="p-1 hover:text-white hover:bg-gray-800 rounded transition-colors" title="Aumentar Tamaño">
+            <Plus className="w-3 h-3" />
+          </button>
+        </div>
+
+        <div className="w-px bg-gray-700 my-1 mx-1" />
+        
         <button onClick={handleDelete} className="text-gray-400 hover:text-red-500 p-0.5 rounded transition-colors" title="Eliminar">
           <Trash2 className="w-4 h-4"/>
         </button>
@@ -88,7 +110,7 @@ function StickyNode({ id, data, selected }: { id: string, data: StickyNodeData, 
           "w-full h-full bg-transparent border-none outline-none resize-none p-4 font-medium leading-tight",
           selected ? "nodrag pointer-events-auto" : "pointer-events-none"
         )}
-        style={{ color: currentColorObj.text, fontSize: 'max(14px, 10cqw)' }}
+        style={{ color: currentColorObj.text, fontSize: `${currentFontSize}px` }}
         value={data.text}
         onChange={handleChange}
         placeholder="Escribe tu nota aquí..."
