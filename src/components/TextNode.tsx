@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { useReactFlow, Handle, Position, NodeResizer } from '@xyflow/react';
-import { Trash2, Bold, Italic, Underline, Minus, Plus } from 'lucide-react';
+import { Trash2, Bold, Italic, Underline, Minus, Plus, ArrowDownToLine, ArrowUpToLine } from 'lucide-react';
 import clsx from 'clsx';
 
 export type TextNodeData = {
@@ -24,6 +24,9 @@ function TextNode({ id, data, selected }: { id: string, data: TextNodeData, sele
   };
 
   const handleDelete = () => setNodes((nodes) => nodes.filter((n) => n.id !== id));
+
+  const sendToBack = () => setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: (n.zIndex || 0) - 1 } : n));
+  const bringToFront = () => setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: (n.zIndex || 0) + 1 } : n));
 
   const changeFontSize = (delta: number) => {
     const newSize = Math.max(8, Math.min(120, fontSize + delta));
@@ -93,6 +96,17 @@ function TextNode({ id, data, selected }: { id: string, data: TextNodeData, sele
           </button>
         </div>
 
+        <div className="w-px h-5 bg-gray-700 mx-1" />
+
+        <div className="flex gap-0.5 px-1">
+          <button onClick={bringToFront} className="text-gray-400 hover:text-white p-1.5 rounded hover:bg-gray-800 transition-colors" title="Traer al frente">
+            <ArrowUpToLine className="w-3.5 h-3.5" />
+          </button>
+          <button onClick={sendToBack} className="text-gray-400 hover:text-white p-1.5 rounded hover:bg-gray-800 transition-colors" title="Enviar al fondo">
+            <ArrowDownToLine className="w-3.5 h-3.5" />
+          </button>
+        </div>
+        
         <div className="w-px h-5 bg-gray-700 mx-1" />
 
         {/* Eliminar */}

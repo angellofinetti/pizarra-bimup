@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Handle, Position, NodeResizer, useReactFlow } from '@xyflow/react';
-import { Trash2, Plus, Minus, Type } from 'lucide-react';
+import { Trash2, Plus, Minus, Type, ArrowDownToLine, ArrowUpToLine } from 'lucide-react';
 import clsx from 'clsx';
 
 export type StickyNodeData = {
@@ -34,6 +34,9 @@ function StickyNode({ id, data, selected }: { id: string, data: StickyNodeData, 
   };
 
   const handleDelete = () => setNodes((nodes) => nodes.filter((n) => n.id !== id));
+  
+  const sendToBack = () => setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: (n.zIndex || 0) - 1 } : n));
+  const bringToFront = () => setNodes((nodes) => nodes.map((n) => n.id === id ? { ...n, zIndex: (n.zIndex || 0) + 1 } : n));
 
   const currentColorObj = colors.find(c => c.bg === data.color) || colors[0];
   const currentFontSize = data.fontSize || 16;
@@ -100,6 +103,17 @@ function StickyNode({ id, data, selected }: { id: string, data: StickyNodeData, 
 
         <div className="w-px bg-gray-700 my-1 mx-1" />
         
+        <div className="flex gap-0.5 px-1">
+          <button onClick={bringToFront} className="text-gray-400 hover:text-white p-1 rounded hover:bg-gray-800 transition-colors" title="Traer al frente">
+            <ArrowUpToLine className="w-3.5 h-3.5" />
+          </button>
+          <button onClick={sendToBack} className="text-gray-400 hover:text-white p-1 rounded hover:bg-gray-800 transition-colors" title="Enviar al fondo">
+            <ArrowDownToLine className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div className="w-px bg-gray-700 my-1 mx-1" />
+
         <button onClick={handleDelete} className="text-gray-400 hover:text-red-500 p-0.5 rounded transition-colors" title="Eliminar">
           <Trash2 className="w-4 h-4"/>
         </button>
