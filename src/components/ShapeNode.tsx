@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Handle, Position, NodeResizer, useReactFlow } from '@xyflow/react';
-import { Trash2, Square, Circle, Diamond, ArrowUpToLine, ArrowDownToLine, Minus, GripHorizontal, MoreHorizontal, PaintBucket, Plus, Type } from 'lucide-react';
+import { Trash2, Square, Circle, Diamond, ArrowUpToLine, ArrowDownToLine, Minus, GripHorizontal, PaintBucket, Plus, Type } from 'lucide-react';
 import clsx from 'clsx';
 
 export type ShapeNodeData = {
@@ -102,85 +102,67 @@ function ShapeNode({ id, data, selected }: { id: string, data: ShapeNodeData, se
       {/* Toolbar Expandida para Figuras */}
       <div 
         className={clsx(
-          "nodrag nopan absolute -top-[5.5rem] left-1/2 -translate-x-1/2 flex flex-col gap-1 bg-gray-900 border border-gray-700 p-1.5 rounded-lg transition-opacity duration-200 z-50 w-max shadow-xl",
+          "nodrag nopan absolute -top-14 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-gray-900/95 backdrop-blur-sm border border-gray-700/80 p-1.5 rounded-xl transition-opacity duration-200 z-50 w-max shadow-xl",
           selected ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         )}
       >
-        {/* Fila superior: Formas, Bordes y Capas */}
-        <div className="flex gap-1 items-center px-1 border-b border-gray-700 pb-1.5 mb-0.5 justify-between">
-          <div className="flex gap-1 border-r border-gray-700 pr-2">
-            <button onClick={() => changeShape('rectangle')} className={clsx("text-gray-400 hover:text-white p-0.5 rounded", data.shape === 'rectangle' && "bg-gray-800 text-blue-400")} title="Rectángulo"><Square className="w-4 h-4" /></button>
-            <button onClick={() => changeShape('circle')} className={clsx("text-gray-400 hover:text-white p-0.5 rounded", data.shape === 'circle' && "bg-gray-800 text-blue-400")} title="Círculo"><Circle className="w-4 h-4" /></button>
-            <button onClick={() => changeShape('diamond')} className={clsx("text-gray-400 hover:text-white p-0.5 rounded", data.shape === 'diamond' && "bg-gray-800 text-blue-400")} title="Rombo"><Diamond className="w-4 h-4" /></button>
-          </div>
-          
-          <div className="flex gap-1 px-1">
-            <button onClick={() => changeBorder('solid')} className={clsx("p-1 rounded hover:text-white transition-colors", currentBorder === 'solid' ? "bg-gray-800 text-blue-400" : "text-gray-400")} title="Borde Corrido"><Minus className="w-4 h-4" /></button>
-            <button onClick={() => changeBorder('dashed')} className={clsx("p-1 rounded hover:text-white transition-colors", currentBorder === 'dashed' ? "bg-gray-800 text-blue-400" : "text-gray-400")} title="Borde Punteado (Largo)"><GripHorizontal className="w-4 h-4" /></button>
-            <button onClick={() => changeBorder('dotted')} className={clsx("p-1 rounded hover:text-white transition-colors", currentBorder === 'dotted' ? "bg-gray-800 text-blue-400" : "text-gray-400")} title="Borde Punteado (Puntos)"><MoreHorizontal className="w-4 h-4" /></button>
-          </div>
-          
-          <div className="flex gap-1 border-l border-gray-700 pl-2">
-            <button onClick={bringToFront} className="text-gray-400 hover:text-white p-0.5" title="Traer al frente"><ArrowUpToLine className="w-4 h-4" /></button>
-            <button onClick={sendToBack} className="text-gray-400 hover:text-white p-0.5" title="Enviar al fondo"><ArrowDownToLine className="w-4 h-4" /></button>
-            <button onClick={handleDelete} className="text-gray-400 hover:text-red-500 p-0.5 ml-1"><Trash2 className="w-4 h-4"/></button>
-          </div>
+        <div className="flex gap-0.5 items-center">
+          <button onClick={() => changeShape('rectangle')} className={clsx("text-gray-400 hover:text-white p-1 rounded-md", data.shape === 'rectangle' && "bg-gray-800 text-blue-400")} title="Rectángulo"><Square className="w-3.5 h-3.5" /></button>
+          <button onClick={() => changeShape('circle')} className={clsx("text-gray-400 hover:text-white p-1 rounded-md", data.shape === 'circle' && "bg-gray-800 text-blue-400")} title="Círculo"><Circle className="w-3.5 h-3.5" /></button>
+          <button onClick={() => changeShape('diamond')} className={clsx("text-gray-400 hover:text-white p-1 rounded-md", data.shape === 'diamond' && "bg-gray-800 text-blue-400")} title="Rombo"><Diamond className="w-3.5 h-3.5" /></button>
         </div>
-
-        {/* Fila inferior: Colores, Transparencia y Slider de Grosor */}
-        <div className="flex gap-1 items-center px-1 justify-center">
-          {/* Botón de Transparente */}
+        
+        <div className="w-px h-5 bg-gray-700/50 mx-0.5" />
+        
+        <div className="flex gap-1 items-center">
           <button 
             onClick={toggleTransparent}
             className={clsx(
-              "w-5 h-5 rounded-full border flex items-center justify-center hover:scale-110 transition-transform relative overflow-hidden",
+              "w-4 h-4 rounded-full border flex items-center justify-center relative overflow-hidden",
               isTransparent ? "border-white ring-1 ring-white" : "border-gray-500"
             )}
-            title="Alternar Fondo Transparente"
+            title="Fondo Transparente"
           >
              <div className="absolute inset-0 bg-[url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIklEQVQIW2NkQAKrVq36zwjjgzhhYWGMYAEYB8RmROaABADeOQ8CXl/xfgAAAABJRU5ErkJggg==')] opacity-50" />
-             <PaintBucket className={clsx("w-3 h-3 z-10", isTransparent ? "text-white" : "text-gray-400")} />
+             <PaintBucket className={clsx("w-2.5 h-2.5 z-10", isTransparent ? "text-white" : "text-gray-400")} />
           </button>
-          
-          <div className="w-px h-4 bg-gray-700 mx-1" />
-
-          {/* Colores */}
           {colors.map(c => (
             <button 
               key={c.bg} onClick={() => changeColor(c.bg)}
-              className={clsx("w-4 h-4 rounded-full border border-gray-600 hover:scale-125", data.color === c.bg && "ring-2 ring-white")} 
+              className={clsx("w-3.5 h-3.5 rounded-full border border-gray-600 hover:scale-110", data.color === c.bg && "ring-1 ring-white")} 
               style={{ backgroundColor: c.bg }} 
               title={c.name}
             />
           ))}
-
-          {/* Slider de Grosor */}
-          <div className="flex items-center gap-2 px-2 border-l border-gray-700 ml-1">
-             <span className="text-[10px] text-gray-400 font-bold uppercase">Grosor</span>
-             <input 
-               type="range" 
-               min="1" 
-               max="16" 
-               value={currentBorderWidth}
-               onChange={(e) => changeBorderWidth(Number(e.target.value))}
-               className="w-16 accent-blue-500 cursor-pointer"
-               title="Grosor del borde"
-             />
-          </div>
         </div>
 
-        {/* Fila 3: Controles de Texto */}
-        <div className="flex gap-1 items-center px-1 border-t border-gray-700 pt-1.5 mt-0.5 justify-center">
-          <Type className="w-3.5 h-3.5 text-gray-400 mr-1" />
-          <div className="flex items-center gap-1 text-gray-400 bg-gray-800 rounded px-1">
-            <button onClick={() => changeFontSize(-2)} className="p-1 hover:text-white transition-colors" title="Reducir Tamaño de Texto">
-              <Minus className="w-3 h-3" />
-            </button>
-            <span className="text-xs font-semibold w-6 text-center">{currentFontSize}</span>
-            <button onClick={() => changeFontSize(2)} className="p-1 hover:text-white transition-colors" title="Aumentar Tamaño de Texto">
-              <Plus className="w-3 h-3" />
-            </button>
-          </div>
+        <div className="w-px h-5 bg-gray-700/50 mx-0.5" />
+        
+        <div className="flex gap-0.5 items-center">
+          <button onClick={() => changeBorder('solid')} className={clsx("p-1 rounded-md hover:text-white transition-colors", currentBorder === 'solid' ? "bg-gray-800 text-blue-400" : "text-gray-400")} title="Borde Corrido"><Minus className="w-3.5 h-3.5" /></button>
+          <button onClick={() => changeBorder('dashed')} className={clsx("p-1 rounded-md hover:text-white transition-colors", currentBorder === 'dashed' ? "bg-gray-800 text-blue-400" : "text-gray-400")} title="Borde Punteado"><GripHorizontal className="w-3.5 h-3.5" /></button>
+          <input 
+            type="range" min="1" max="16" value={currentBorderWidth} 
+            onChange={(e) => changeBorderWidth(Number(e.target.value))} 
+            className="w-12 accent-blue-500 cursor-pointer ml-1" title="Grosor de borde"
+          />
+        </div>
+        
+        <div className="w-px h-5 bg-gray-700/50 mx-0.5" />
+        
+        <div className="flex items-center gap-0.5 text-gray-400">
+          <Type className="w-3.5 h-3.5 mr-0.5" />
+          <button onClick={() => changeFontSize(-2)} className="p-0.5 hover:text-white hover:bg-gray-800 rounded"><Minus className="w-3 h-3" /></button>
+          <span className="text-[10px] font-semibold w-4 text-center">{currentFontSize}</span>
+          <button onClick={() => changeFontSize(2)} className="p-0.5 hover:text-white hover:bg-gray-800 rounded"><Plus className="w-3 h-3" /></button>
+        </div>
+
+        <div className="w-px h-5 bg-gray-700/50 mx-0.5" />
+        
+        <div className="flex gap-0.5 items-center">
+          <button onClick={bringToFront} className="text-gray-400 hover:text-white p-1 hover:bg-gray-800 rounded-md" title="Traer al frente"><ArrowUpToLine className="w-3.5 h-3.5" /></button>
+          <button onClick={sendToBack} className="text-gray-400 hover:text-white p-1 hover:bg-gray-800 rounded-md" title="Enviar al fondo"><ArrowDownToLine className="w-3.5 h-3.5" /></button>
+          <button onClick={handleDelete} className="text-gray-400 hover:text-red-500 p-1 hover:bg-gray-800 rounded-md" title="Eliminar"><Trash2 className="w-3.5 h-3.5"/></button>
         </div>
       </div>
 
