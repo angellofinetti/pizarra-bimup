@@ -176,7 +176,13 @@ export default function LearningCanvas({ boardId }: LearningCanvasProps) {
                 const newNode: Node = {
                   id: `img-${Date.now()}`,
                   type: 'imageNode',
-                  position: { x: window.innerWidth / 2 - 150, y: window.innerHeight / 2 - 100 },
+                  position: (() => {
+                    const container = document.querySelector('.react-flow') as HTMLElement;
+                    let cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+                    if (container) { const r = container.getBoundingClientRect(); cx = r.left + r.width / 2; cy = r.top + r.height / 2; }
+                    const p = screenToFlowPosition({ x: cx, y: cy });
+                    return { x: p.x - 150, y: p.y - 100 };
+                  })(),
                   data: { url: event.target.result as string },
                   style: { width: 300, height: 200 },
                   zIndex: 10
@@ -323,8 +329,8 @@ export default function LearningCanvas({ boardId }: LearningCanvasProps) {
         minZoom={0.1}
         maxZoom={4}
         deleteKeyCode={["Backspace", "Delete"]}
-        snapToGrid={true}
-        snapGrid={[20, 20]}
+        
+        
         panOnDrag={[1, 2]}
         selectionOnDrag={true}
         selectionMode={SelectionMode.Partial}
