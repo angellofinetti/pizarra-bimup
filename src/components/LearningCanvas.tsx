@@ -59,7 +59,7 @@ interface LearningCanvasProps {
 
 export default function LearningCanvas({ boardId }: LearningCanvasProps) {
   const { user } = useAuth();
-  const { screenToFlowPosition } = useReactFlow();
+  const { getViewport } = useReactFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedVideo, setSelectedVideo] = useState<{ isOpen: boolean; title: string; url: string }>({ isOpen: false, title: '', url: '' });
@@ -177,11 +177,13 @@ export default function LearningCanvas({ boardId }: LearningCanvasProps) {
                   id: `img-${Date.now()}`,
                   type: 'imageNode',
                   position: (() => {
+                    const { x: panX, y: panY, zoom } = getViewport();
                     const container = document.querySelector('.react-flow') as HTMLElement;
-                    let cx = window.innerWidth / 2, cy = window.innerHeight / 2;
-                    if (container) { const r = container.getBoundingClientRect(); cx = r.left + r.width / 2; cy = r.top + r.height / 2; }
-                    const p = screenToFlowPosition({ x: cx, y: cy });
-                    return { x: p.x - 150, y: p.y - 100 };
+                    const rect = container ? container.getBoundingClientRect() : { width: window.innerWidth, height: window.innerHeight };
+                    return {
+                      x: (-panX + rect.width / 2) / zoom - 150,
+                      y: (-panY + rect.height / 2) / zoom - 100,
+                    };
                   })(),
                   data: { url: event.target.result as string },
                   style: { width: 300, height: 200 },
@@ -268,21 +270,18 @@ export default function LearningCanvas({ boardId }: LearningCanvasProps) {
   const addNewNode = (type: string, data: any, zIndex: number = 1, style?: any) => {
     takeSnapshot();
     
-    // Obtener el centro del contenedor (o de la pantalla si no se encuentra)
+    // Usar viewport (pan + zoom) directamente: mas confiable que DOM queries
+    const { x: panX, y: panY, zoom } = getViewport();
     const container = document.querySelector('.react-flow') as HTMLElement;
-    let centerX = window.innerWidth / 2;
-    let centerY = window.innerHeight / 2;
+    const rect = container ? container.getBoundingClientRect() : { width: window.innerWidth, height: window.innerHeight };
     
-    if (container) {
-      const rect = container.getBoundingClientRect();
-      centerX = rect.left + rect.width / 2;
-      centerY = rect.top + rect.height / 2;
-    }
-
-    // Proyectar coordenadas de la pantalla al espacio de la pizarra (zoom y pan)
-    const projected = screenToFlowPosition({ x: centerX, y: centerY });
+    // Centro del viewport en coordenadas de flujo
+    const projected = {
+      x: (-panX + rect.width / 2) / zoom,
+      y: (-panY + rect.height / 2) / zoom,
+    };
     
-    // Ajustar para que el centro del nuevo objeto quede exactamente en el centro de la pantalla
+    // Centrar el objeto en ese punto
     const offsetX = style?.width ? style.width / 2 : 100;
     const offsetY = style?.height ? style.height / 2 : 100;
 
